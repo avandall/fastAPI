@@ -105,6 +105,14 @@ def update_posts(id:int, post: Post):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id: {id} was not found")
     return {"data": updated}
     
+@app.put("/sqlalchemy/{id}")
+def update_post_alchemy(id:int, post: Post, db: Session = Depends(get_db)):
+    post_id = db.query(models.Post).filter(models.Post.id==id)
+    if not post_id.first():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id: {id} was not found")
+    post_id.update(post.model_dump(), synchronize_session=False)
+    db.commit()
+    return post_id.first()
 
 #DELETE
 @app.delete("/posts/{id}")
