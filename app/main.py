@@ -8,7 +8,7 @@ import time
 
 from sqlalchemy.orm import Session
 from .database import get_db, Base, engine
-from . import models
+from . import models, schemas
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -16,10 +16,7 @@ app = FastAPI()
 
 my_posts = [{"message":"Food","content":"I like pizza", "id":1},{"message":"Drink","content":"I like sting", "id":2}]
 
-class Post(BaseModel):
-    title: str
-    content: str
-    published: bool = True
+
     
 
 while True:
@@ -50,11 +47,11 @@ def get_posts():
     print(post)
     return {"data": post}
 
-@app.get("/sqlalchemy")
+@app.get("/sqlalchemy", response_model=List[schemas.Return_Post])
 def alchemy_get(db: Session = Depends(get_db)):
     posts = db.query(models.Post).all()
     print(posts)
-    return {"data": posts}
+    return posts
     
 
 @app.get("/posts/{id}")
@@ -65,12 +62,12 @@ def get_post(id:int):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id: {id} was not found")
     return {"data": post}
 
-@app.get("/sqlalchemy")
+@app.get("/sqlalchemy/{id}", response_model=schemas.Post)
 def alchemy_get_id(id:int, db: Session = Depends(get_db)):
     post_id = db.query(models.Post).filter(models.Post.id==id).first()
     if not post_id:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id: {id} was not found")
-    return {"data": post_id}
+    return post_id
 
 
 #POST
@@ -82,8 +79,8 @@ def create_posts(post: List[Post]):
     conn.commit()
     return {"data": result}
 
-@app.post("/sqlalchemy")
-def post_alchemy(post:Post, db: Session = Depends(get_db)):
+@app.post("/sqlalchemy", response_model=schemas.Return_Post)
+def post_alchemy(post:schemas.Base_Post, db: Session = Depends(get_db)):
     new_post = models.Post(**post.model_dump())
     try:
         db.add(new_post)
@@ -105,8 +102,8 @@ def update_posts(id:int, post: Post):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id: {id} was not found")
     return {"data": updated}
     
-@app.put("/sqlalchemy/{id}")
-def update_post_alchemy(id:int, post: Post, db: Session = Depends(get_db)):
+@app.put("/sqlalchemy/{id}", response_model=schemas.Return_Post)
+def update_post_alchemy(id:int, post:schemas.Base_Post, db: Session = Depends(get_db)):
     post_id = db.query(models.Post).filter(models.Post.id==id)
     if not post_id.first():
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id: {id} was not found")
