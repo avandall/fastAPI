@@ -1,6 +1,6 @@
 from pydantic import BaseModel, ConfigDict, EmailStr
 from datetime import datetime
-
+from typing import Optional
 
 class Base_Post(BaseModel):
     title: str
@@ -23,3 +23,14 @@ class UserOut(BaseModel):
     email: EmailStr
 
     model_config = ConfigDict(from_attributes=True)
+
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
+
+class Token(BaseModel):
+    token: str
+    token_type: str
+
+class TokenData(BaseModel):
+    id: Optional[str] = None

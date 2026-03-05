@@ -9,7 +9,7 @@ from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 from .database import get_db, Base, engine
 from . import models, schemas
-from .routers import posts, users
+from .routers import posts, users, auth
 
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 models.Base.metadata.create_all(bind=engine)
@@ -17,6 +17,7 @@ models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
 app.include_router(posts.router)
 app.include_router(users.router)
+app.include_router(auth.router)
 
 my_posts = [{"message":"Food","content":"I like pizza", "id":1},{"message":"Drink","content":"I like sting", "id":2}]
 

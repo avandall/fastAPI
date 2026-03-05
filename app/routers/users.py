@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from ..database import get_db, Base, engine
 from .. import models, schemas
 
-router = APIRouter(prefix="/", tags=["Users"])
+router = APIRouter(prefix="/users", tags=["Users"])
 
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 

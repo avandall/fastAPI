@@ -1,13 +1,13 @@
 from fastapi import Depends, FastAPI,Response, status, HTTPException, APIRouter
-from pydantic import BaseModel
 from typing import List
 import psycopg2
 from psycopg2.extras import RealDictCursor, execute_values
 import time
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
+
 from ..database import get_db, Base, engine
-from .. import models, schemas
+from .. import models, schemas, oauth2
 
 router = APIRouter(tags=["Posts"])
 
@@ -54,15 +54,15 @@ def alchemy_get_id(id:int, db: Session = Depends(get_db)):
 
 #POST
 @router.post("/posts")
-def create_posts(post: List[Post]):
+def create_posts(post: List[schemas.Base_Post]):
     data_insert = [(p.title, p.content, p.published) for p in post]
     query = 'INSERT INTO posts (title, content, published) VALUES %s RETURNING *'
     result = execute_values(cursor,query,data_insert,fetch=True)
     conn.commit()
     return {"data": result}
 
-@router.post("/sqlalchemy", response_model=schemas.Return_Post)
-def post_alchemy(post:schemas.Base_Post, db: Session = Depends(get_db)):
+@router.post("/sqlalchemy", status_code=status.HTTP_201_CREATED, response_model=schemas.Return_Post)
+def post_alchemy(post:schemas.Base_Post, db: Session = Depends(get_db), get_current_user: schemas.TokenData = Depends(oauth2.get_current_user)):
     new_post = models.Post(**post.model_dump())
     try:
         db.add(new_post)
@@ -76,7 +76,7 @@ def post_alchemy(post:schemas.Base_Post, db: Session = Depends(get_db)):
 
 #PUT
 @router.put("/posts/{id}")
-def update_posts(id:int, post: Post):
+def update_posts(id:int, post: schemas.Base_Post):
     cursor.execute("UPDATE posts SET title = %s, content = %s, published = %s WHERE id = %s RETURNING *", (post.title, post.content, post.published,str(id)))
     updated = cursor.fetchone()
     conn.commit()
