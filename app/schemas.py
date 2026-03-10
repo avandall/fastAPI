@@ -7,9 +7,7 @@ class Base_Post(BaseModel):
     content: str
     published: bool = True
 
-class Return_Post(Base_Post):
-    id: int
-    created_at: datetime
+
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -28,9 +26,15 @@ class UserLogin(BaseModel):
     email: EmailStr
     password: str
 
+class Return_Post(Base_Post):
+    id: int
+    created_at: datetime
+    owner_id: int
+    owner: UserOut
+
 class Token(BaseModel):
     token: str
     token_type: str
 
 class TokenData(BaseModel):
-    id: Optional[str] = None
+    id: int | None = None
