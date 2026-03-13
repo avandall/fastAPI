@@ -11,16 +11,16 @@ from .. import models, schemas, oauth2
 
 router = APIRouter(tags=["Posts"])
 
-while True:
-    try:
-        conn = psycopg2.connect(host='localhost', database = 'learnFastAPI', user='postgres', password='avandall1999', cursor_factory=RealDictCursor)
-        cursor = conn.cursor()
-        print("Database connected !!!")
-        break
-    except Exception as e:
-        print('Connection failed !')
-        print('Error:', e)
-        time.sleep(3)
+# while True:
+#     try:
+#         conn = psycopg2.connect(host='localhost', database = 'learnFastAPI', user='postgres', password='avandall1999', cursor_factory=RealDictCursor)
+#         cursor = conn.cursor()
+#         print("Database connected !!!")
+#         break
+#     except Exception as e:
+#         print('Connection failed !')
+#         print('Error:', e)
+#         time.sleep(3)
 #GET
 # @router.get("/posts")
 # def get_posts():
@@ -30,8 +30,8 @@ while True:
 #     return {"data": post}
 
 @router.get("/sqlalchemy", response_model=List[schemas.Return_Post])
-def alchemy_get(db: Session = Depends(get_db)):
-    posts = db.query(models.Post).all()
+def alchemy_get(db: Session = Depends(get_db), limit :int = 10, skip: int = 0, search: str = ""):
+    posts = db.query(models.Post).filter(models.Post.title.contains(search)).limit(limit).offset(skip).all()
     print(posts)
     return posts
     

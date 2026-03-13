@@ -1,9 +1,6 @@
 from fastapi import Depends, FastAPI,Response, status, HTTPException, APIRouter
 from pydantic import BaseModel
 from typing import List
-import psycopg2
-from psycopg2.extras import RealDictCursor, execute_values
-import time
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 from ..database import get_db, Base, engine
