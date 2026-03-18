@@ -29,6 +29,10 @@ router = APIRouter(tags=["Posts"])
 #     print(post)
 #     return {"data": post}
 
+@router.get("/")
+def root():
+    return {"message": "Hello World"}
+
 @router.get("/sqlalchemy", response_model=List[schemas.Return_Post])
 def alchemy_get(db: Session = Depends(get_db), limit :int = 10, skip: int = 0, search: str = ""):
     posts = db.query(models.Post).filter(models.Post.title.contains(search)).limit(limit).offset(skip).all()
