@@ -17,7 +17,14 @@ print(f"--- LENGTH: {len(host) if host else 0} ---")
 
 models.Base.metadata.create_all(bind=engine)
 origins = ["*"]  # Allow all origins, you can specify your frontend URL here
+
+
 app = FastAPI()
+
+@app.get("/")
+def root():
+    return {"message": "Hello World"}
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,

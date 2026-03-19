@@ -1,0 +1,50 @@
+services:
+  # Ông 1: Database
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=password123
+      - POSTGRES_DB=fastapi_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # Ông 2: App FastAPI của bạn
+  web-api:
+    build: .
+    restart: always
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+    environment:
+      # LƯU Ý: Chỗ localhost phải đổi thành "db" (tên của service phía trên)
+      - DATABASE_URL=postgresql://admin:password123@db:5432/fastapi_db
+    volumes:
+      - .:/app
+    develop:
+      watch:
+        - action: sync
+          path: .
+          target: /app
+          ignore:
+            - venv/
+        - action: rebuild
+          path: requirements.txt
+
+  # Ông 3: Cloudflare Tunnel
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    restart: always
+    # Lệnh chạy tunnel dùng file config trong folder cloudflare
+    command: tunnel --url http://web-api:8000
+    # volumes:
+    #   - ./cloudflare:/etc/cloudflared
+    depends_on:
+      - web-api
+
+volumes:
+  postgres_data:
