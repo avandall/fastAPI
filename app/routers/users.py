@@ -20,8 +20,9 @@ def get_users(db: Session = Depends(get_db)):
 @router.post("/", response_model=schemas.UserOut)
 def create_user(user:schemas.User, db: Session = Depends(get_db)):
     password_hash = pwd_context.hash(user.password)
-    user.password = password_hash
-    new_user = models.User(**user.model_dump())
+    userdict = user.model_dump()
+    userdict['password'] = password_hash
+    new_user = models.User(**userdict)
     try:
         db.add(new_user)
         db.commit()

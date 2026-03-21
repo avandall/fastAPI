@@ -29,8 +29,8 @@ router = APIRouter(tags=["Posts"])
 #     print(post)
 #     return {"data": post}
 
-@router.get("/")
-def root():
+@router.get("/posts-root")
+def posts_root():
     return {"message": "Hello World"}
 
 @router.get("/sqlalchemy", response_model=List[schemas.Return_Post])
