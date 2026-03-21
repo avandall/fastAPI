@@ -1,3 +1,10 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["app"]
+
 [project]
 name = "learnFastAPI"
 version = "0.1.0"
@@ -41,3 +48,13 @@ dependencies = [
     "typing-inspection==0.4.2",
     "uvicorn==0.41.0",
 ]
+
+[project.optional-dependencies]
+dev = [
+    "httpx>=0.28.0",
+    "pytest>=8.0.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
