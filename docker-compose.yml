@@ -1,50 +1,26 @@
 services:
-  # Ông 1: Database
-  db:
-    image: postgres:15
-    restart: always
-    environment:
-      - POSTGRES_USER=admin
-      - POSTGRES_PASSWORD=password123
-      - POSTGRES_DB=fastapi_db
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
-  # Ông 2: App FastAPI của bạn
-  web-api:
+  web:
     build: .
-    restart: always
-    depends_on:
-      - db
     ports:
       - "8000:8000"
+    # 1. Gỡ bỏ hoặc comment volumes nếu bạn muốn dùng tính năng 'watch' chuyên sâu
+    # volumes:
+    #   - .:/app
     environment:
-      # LƯU Ý: Chỗ localhost phải đổi thành "db" (tên của service phía trên)
-      - DATABASE_URL=postgresql://admin:password123@db:5432/fastapi_db
-    volumes:
-      - .:/app
+      - PYTHONUNBUFFERED=1
+    # 2. Thêm cấu hình watch để Docker tự đồng bộ file từ WSL vào Container
     develop:
       watch:
         - action: sync
           path: .
           target: /app
           ignore:
-            - venv/
-        - action: rebuild
-          path: requirements.txt
+            - .venv/
+            - __pycache__/
 
-  # Ông 3: Cloudflare Tunnel
   tunnel:
     image: cloudflare/cloudflared:latest
     restart: always
-    # Lệnh chạy tunnel dùng file config trong folder cloudflare
-    command: tunnel --url http://web-api:8000
-    # volumes:
-    #   - ./cloudflare:/etc/cloudflared
+    command: tunnel --no-autoupdate run --token <YOUR_CLOUDFLARE_TOKEN>
     depends_on:
-      - web-api
-
-volumes:
-  postgres_data:
+      - web
