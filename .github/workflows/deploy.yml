@@ -28,15 +28,15 @@ jobs:
           push: true
           tags: avandall1999/fastapi:latest
 
-      # - name: Deploy to server
-      #   uses: appleboy/ssh-action@master
+      # - name: Restart server (docker compose)
+      #   uses: appleboy/ssh-action@v1.0.3
       #   with:
       #     host: ${{ secrets.SERVER_HOST }}
       #     username: ${{ secrets.SERVER_USER }}
       #     key: ${{ secrets.SERVER_SSH_KEY }}
+      #     port: ${{ secrets.SERVER_PORT || 22 }}
       #     script: |
-      #       docker pull avandall1999/fastapi:latest
-      #       docker stop fastapi|| true
-      #       docker rm fastapi || true
-      #       docker run -d --name fastapi -p 8000:8000 avandall1999/fastapi:latest
-
+      #       set -e
+      #       cd "${{ secrets.SERVER_APP_DIR }}"
+      #       docker compose pull
+      #       docker compose up -d --remove-orphans

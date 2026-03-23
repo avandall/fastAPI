@@ -4,7 +4,7 @@ from .database import engine
 from . import models
 from .routers import posts, users, auth
 
-models.Base.metadata.create_all(bind=engine)
+# models.Base.metadata.create_all(bind=engine)
 origins = ["*"]  # Allow all origins, you can specify your frontend URL here
 
 app = FastAPI()

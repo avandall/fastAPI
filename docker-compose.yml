@@ -4,9 +4,9 @@ services:
     image: postgres:15
     restart: always
     environment:
-      - POSTGRES_USER=admin
-      - POSTGRES_PASSWORD=password123
-      - POSTGRES_DB=fastapi_db
+      - POSTGRES_USER=${DATABASE_USERNAME}
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+      - POSTGRES_DB=${DATABASE_NAME}
     ports:
       - "5432:5432"
     volumes:
@@ -21,10 +21,17 @@ services:
     ports:
       - "8000:8000"
     environment:
-      # LƯU Ý: Chỗ localhost phải đổi thành "db" (tên của service phía trên)
-      - DATABASE_URL=postgresql://admin:password123@db:5432/fastapi_db
+        - DATABASE_HOST=db
+      # - DATABASE_URL=postgresql://admin:password123@db:5432/fastapi_db
+        - DATABASE_URL=postgresql://${DATABASE_USERNAME}:${DATABASE_PASSWORD}@db:5432/${DATABASE_NAME}
+    env_file:
+      - .env
     volumes:
       - .:/app
+    command: >
+      sh -c "sleep 5 && 
+         alembic upgrade head && 
+         gunicorn -w 2 -k uvicorn.workers.UvicornWorker app.main:app --bind 0.0.0.0:8000"
     develop:
       watch:
         - action: sync

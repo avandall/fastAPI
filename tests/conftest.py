@@ -29,6 +29,7 @@ def reset_database() -> Generator[None, None, None]:
     Base.metadata.create_all(bind=engine)
     yield
     Base.metadata.drop_all(bind=engine)
+    engine.dispose()
 
 
 @pytest.fixture
@@ -39,6 +40,7 @@ def client() -> Generator[TestClient, None, None]:
 
 def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
     try:
+        engine.dispose()
         TEST_DB_FILE.unlink(missing_ok=True)
     except OSError:
         pass
